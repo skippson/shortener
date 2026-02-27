@@ -3,9 +3,11 @@ package config
 import "github.com/ilyakaznacheev/cleanenv"
 
 type Service struct {
-	Name string `env:"NAME" env-default:"shortener"`
-	Host string `env:"HOST" env-default:"0.0.0.0"`
-	Port int    `env:"PORT" env-default:"8080"`
+	Name                 string `env:"NAME" env-default:"shortener"`
+	Host                 string `env:"HOST" env-default:"0.0.0.0"`
+	Port                 int    `env:"PORT" env-default:"8080"`
+	MaxGeneratorAttempts int    `env:"MAX_GENERATE_ATTEMPTS" env-default:"3"`
+	InMemory             bool   `env:"IN_MEMORY_MODE" env-default:"false"`
 }
 
 type Postgres struct {
@@ -25,11 +27,9 @@ type Generator struct {
 }
 
 type Config struct {
-	Postgres             Postgres  `env-prefix:"DB_"`
-	Service              Service   `env-prefix:"SERVICE_"`
-	Generator            Generator `env-prefix:"GEN_"`
-	MaxGeneratorAttempts int       `env:"MAX_GENERATE_ATTEMPTS" env-default:"3"`
-	InMemory             bool      `env:"IN_MEMORY_MODE" env-default:"false"`
+	Postgres  Postgres  `env-prefix:"DB_"`
+	Service   Service   `env-prefix:"SERVICE_"`
+	Generator Generator `env-prefix:"GEN_"`
 }
 
 func Load() (Config, error) {

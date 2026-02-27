@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${SERVICE_NAME}-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+     - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+     test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+     interval: 5s
+     timeout: 5s
+     retries: 5
+
+  migrate:
+    image: migrate/migrate
+    container_name: ${SERVICE_NAME}-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ./internal/adapters/repository/postgres/migrations:/migrations
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${DB_SSL_MODE}",
+      "up"
+    ]
+
+  app:
+    build: .
+    container_name: ${SERVICE_NAME}-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
+
+volumes:
+  pgdata:

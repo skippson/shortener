@@ -17,53 +17,24 @@ import (
 	"syscall"
 )
 
-func getLocalCfg() config.Config {
-	return config.Config{
-		Service: config.Service{
-			Name: "debug",
-			Host: "0.0.0.0",
-			Port: 8080,
-		},
-
-		Postgres: config.Postgres{
-			Host:     "localhost",
-			Port:     5432,
-			User:     "shortener",
-			Password: "shortener",
-			Name:     "shortener",
-			SSLMode:  "disable",
-			MaxConns: 20,
-			MinConns: 2,
-		},
-
-		Generator: config.Generator{
-			Alphabet: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_",
-			Len:      10,
-		},
-
-		MaxGeneratorAttempts: 5,
-
-		InMemory: true,
-	}
-}
-
 func main() {
-	cfg := getLocalCfg()
-	// cfg, err := config.Load()
-	// if err != nil {
-	// 	panic(err)
-	// }
+	cfg, err := config.Load()
+	if err != nil {
+		panic(err)
+	}
 
 	log, err := logger.New(cfg.Service.Name)
 	if err != nil {
 		panic(err)
 	}
 
+	log.Info("service starts working")
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	var db repository.Repository
-	if cfg.InMemory {
+	if cfg.Service.InMemory {
 		db = memory.NewRepository()
 	} else {
 		db, err = postgres.NewRepository(ctx, cfg.Postgres)
@@ -78,7 +49,7 @@ func main() {
 
 	generator := generator.NewGenerator(cfg.Generator.Alphabet, cfg.Generator.Len)
 
-	uc, err := usecase.NewUsecase(log, db, generator, cfg.MaxGeneratorAttempts)
+	uc, err := usecase.NewUsecase(log, db, generator, cfg.Service.MaxGeneratorAttempts)
 	if err != nil {
 		log.Error("usecase initialization error",
 			logger.Field{Key: "error", Value: err})
@@ -97,4 +68,5 @@ func main() {
 		return
 	}
 
+	log.Error("service successfully stopped")
 }
