@@ -3,11 +3,12 @@ package config
 import "github.com/ilyakaznacheev/cleanenv"
 
 type Service struct {
-	Name                 string `env:"NAME" env-default:"shortener"`
-	Host                 string `env:"HOST" env-default:"0.0.0.0"`
-	Port                 int    `env:"PORT" env-default:"8080"`
-	MaxGeneratorAttempts int    `env:"MAX_GENERATE_ATTEMPTS" env-default:"3"`
-	InMemory             bool   `env:"IN_MEMORY_MODE" env-default:"false"`
+	Name                string `env:"NAME" env-default:"shortener"`
+	Host                string `env:"HOST" env-required:"true"`
+	Port                int    `env:"PORT" env-required:"true"`
+	MaxGenerateAttempts int    `env:"MAX_GENERATE_ATTEMPTS" env-default:"3"`
+	InMemory            bool   `env:"IN_MEMORY_MODE" env-default:"false"`
+	Protection          bool   `env:"PROTECTION" env-default:"true"`
 }
 
 type Postgres struct {

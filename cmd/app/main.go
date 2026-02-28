@@ -13,6 +13,7 @@ import (
 	"shortener/internal/generator"
 	"shortener/internal/server"
 	"shortener/internal/usecase"
+	"shortener/internal/validator"
 	"shortener/pkg/logger"
 	"syscall"
 )
@@ -49,7 +50,22 @@ func main() {
 
 	generator := generator.NewGenerator(cfg.Generator.Alphabet, cfg.Generator.Len)
 
-	uc, err := usecase.NewUsecase(log, db, generator, cfg.Service.MaxGeneratorAttempts)
+	validator, err := validator.NewValidator(cfg.Generator.Alphabet, cfg.Generator.Len)
+	if err != nil {
+		log.Error("validator initialization error",
+			logger.Field{Key: "error", Value: err})
+
+		return
+	}
+
+	uc, err := usecase.NewUsecase(usecase.UsecaseOptions{
+		Repository:  db,
+		Generator:   generator,
+		Validator:   validator,
+		Logger:      log,
+		MaxAttempts: cfg.Service.MaxGenerateAttempts,
+		Protection:  cfg.Service.Protection,
+	})
 	if err != nil {
 		log.Error("usecase initialization error",
 			logger.Field{Key: "error", Value: err})

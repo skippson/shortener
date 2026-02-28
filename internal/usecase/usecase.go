@@ -17,26 +17,52 @@ type Generator interface {
 	Generate() (string, error)
 }
 
+type Validator interface {
+	ValidateURL(url string) (string, bool)
+	ValidateShortened(shortened string) bool
+}
+
+type UsecaseOptions struct {
+	Repository  Repository
+	Generator   Generator
+	Validator   Validator
+	Logger      logger.Logger
+	MaxAttempts int
+	Protection  bool
+}
+
 type Usecase struct {
 	repo        Repository
 	gen         Generator
+	validator   Validator
 	log         logger.Logger
 	maxAttempts int
+	protec      bool
 }
 
-func NewUsecase(logger logger.Logger, repo Repository, gen Generator, maxAttempts int) (*Usecase, error) {
-	if maxAttempts <= 0 {
+func NewUsecase(options UsecaseOptions) (*Usecase, error) {
+	if options.MaxAttempts <= 0 {
 		return nil, errors.New("maxAttempts must be positive")
 	}
 	return &Usecase{
-		repo:        repo,
-		gen:         gen,
-		log:         logger,
-		maxAttempts: maxAttempts,
+		repo:        options.Repository,
+		gen:         options.Generator,
+		validator:   options.Validator,
+		log:         options.Logger,
+		maxAttempts: options.MaxAttempts,
+		protec:      options.Protection,
 	}, nil
 }
 
 func (uc *Usecase) CreateShortened(ctx context.Context, url string) (string, error) {
+	if uc.protec {
+		ok := false
+		url, ok = uc.validator.ValidateURL(url)
+		if !ok {
+			return "", domain.ErrInvalidURL
+		}
+	}
+
 	for range uc.maxAttempts {
 		shortened, err := uc.repo.GetByOriginal(ctx, url)
 		if err == nil {
@@ -75,6 +101,12 @@ func (uc *Usecase) CreateShortened(ctx context.Context, url string) (string, err
 }
 
 func (uc *Usecase) GetShortenedByOriginal(ctx context.Context, shortened string) (string, error) {
+	if uc.protec {
+		if !uc.validator.ValidateShortened(shortened) {
+			return "", domain.ErrInvalidShortened
+		}
+	}
+
 	origin, err := uc.repo.GetByShortened(ctx, shortened)
 	if err != nil {
 		if err == domain.ErrNotFound {

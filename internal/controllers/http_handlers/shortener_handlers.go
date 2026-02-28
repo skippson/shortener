@@ -16,7 +16,7 @@ type Usecase interface {
 }
 
 type ApiHandlers struct {
-	uc  Usecase
+	uc Usecase
 }
 
 func NewHandlers(uc Usecase) *ApiHandlers {
@@ -36,17 +36,16 @@ type createShortenerResponse struct {
 func (h *ApiHandlers) CreateShortened() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		req := createShortenerParams{}
-
 		if err := c.BodyParser(&req); err != nil {
 			return writeError(c, fiber.StatusBadRequest, "invalid json")
 		}
 
-		if req.URL == "" {
-			return writeError(c, fiber.StatusBadRequest, "url is requires")
-		}
-
 		shortener, err := h.uc.CreateShortened(c.Context(), req.URL)
 		if err != nil {
+			if errors.Is(err, domain.ErrInvalidURL) {
+				return writeError(c, fiber.StatusBadRequest, "invalid url")
+			}
+
 			getLogger(c).Error("create shortened failed",
 				logger.Field{Key: "url", Value: req.URL},
 				logger.Field{Key: "error", Value: err})
@@ -65,13 +64,10 @@ type getOriginalResponse struct {
 func (h *ApiHandlers) GetOriginalal() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		shortener := c.Params("shortener")
-		if shortener == "" {
-			return writeError(c, fiber.StatusBadRequest, "shortener param is required")
-		}
 
-		Original, err := h.uc.GetShortenedByOriginal(c.Context(), shortener)
+		original, err := h.uc.GetShortenedByOriginal(c.Context(), shortener)
 		if err != nil {
-			if errors.Is(err, domain.ErrNotFound) {
+			if errors.Is(err, domain.ErrInvalidShortened) || errors.Is(err, domain.ErrNotFound) {
 				return writeError(c, fiber.StatusNotFound, "not found")
 			}
 
@@ -82,6 +78,6 @@ func (h *ApiHandlers) GetOriginalal() fiber.Handler {
 			return writeError(c, fiber.StatusInternalServerError, "internal error")
 		}
 
-		return writeSuccess(c, fiber.StatusOK, getOriginalResponse{Original: Original})
+		return writeSuccess(c, fiber.StatusOK, getOriginalResponse{Original: original})
 	}
 }
