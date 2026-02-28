@@ -26,8 +26,8 @@ func NewServer(h *httphandlers.ApiHandlers, log logger.Logger) *Server {
 	addHealthCheck(app)
 
 	api := app.Group("/api")
-
 	mw := middleware.NewMiddleware(log)
+	
 	h.MapApiRoutes(api, mw)
 
 	return &Server{
@@ -47,7 +47,7 @@ func (s *Server) Run(ctx context.Context, address string) error {
 
 	go func() {
 		s.log.Info("server started",
-			logger.Field{Key: "addres", Value: address},
+			logger.Field{Key: "address", Value: address},
 		)
 
 		if err := s.app.Listen(address); err != nil {

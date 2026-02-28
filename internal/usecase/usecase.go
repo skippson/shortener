@@ -113,7 +113,7 @@ func (uc *Usecase) GetShortenedByOriginal(ctx context.Context, shortened string)
 			return "", err
 		}
 
-		uc.log.Error("cannot get origin url",
+		uc.log.Error("cannot get original url",
 			logger.Field{Key: "shortened", Value: shortened},
 			logger.Field{Key: "error", Value: err})
 

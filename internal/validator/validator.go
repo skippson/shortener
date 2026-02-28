@@ -28,7 +28,7 @@ func NewValidator(alphabet string, size int) (*Validator, error) {
 	}, nil
 }
 
-func (v Validator) ValidateURL(url string) (string, bool) {
+func (v *Validator) ValidateURL(url string) (string, bool) {
 	url = strings.TrimSpace(url)
 	if url == "" {
 		return "", false
@@ -47,7 +47,7 @@ func (v Validator) ValidateURL(url string) (string, bool) {
 	return normalized, true
 }
 
-func (v Validator) ValidateShortened(shortened string) bool {
+func (v *Validator) ValidateShortened(shortened string) bool {
 	if len(shortened) != v.len {
 		return false
 	}

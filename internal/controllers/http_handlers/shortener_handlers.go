@@ -30,7 +30,7 @@ type createShortenerParams struct {
 }
 
 type createShortenerResponse struct {
-	Shortener string `json:"shortener"`
+	Shortened string `json:"shortened"`
 }
 
 func (h *ApiHandlers) CreateShortened() fiber.Handler {
@@ -40,7 +40,7 @@ func (h *ApiHandlers) CreateShortened() fiber.Handler {
 			return writeError(c, fiber.StatusBadRequest, "invalid json")
 		}
 
-		shortener, err := h.uc.CreateShortened(c.Context(), req.URL)
+		shortened, err := h.uc.CreateShortened(c.Context(), req.URL)
 		if err != nil {
 			if errors.Is(err, domain.ErrInvalidURL) {
 				return writeError(c, fiber.StatusBadRequest, "invalid url")
@@ -53,26 +53,26 @@ func (h *ApiHandlers) CreateShortened() fiber.Handler {
 			return writeError(c, fiber.StatusInternalServerError, "internal error")
 		}
 
-		return writeSuccess(c, fiber.StatusOK, createShortenerResponse{Shortener: shortener})
+		return writeSuccess(c, fiber.StatusOK, createShortenerResponse{Shortened: shortened})
 	}
 }
 
 type getOriginalResponse struct {
-	Original string `json:"Original"`
+	Original string `json:"original"`
 }
 
 func (h *ApiHandlers) GetOriginalal() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		shortener := c.Params("shortener")
+		shortened := c.Params("shortened")
 
-		original, err := h.uc.GetShortenedByOriginal(c.Context(), shortener)
+		original, err := h.uc.GetShortenedByOriginal(c.Context(), shortened)
 		if err != nil {
 			if errors.Is(err, domain.ErrInvalidShortened) || errors.Is(err, domain.ErrNotFound) {
 				return writeError(c, fiber.StatusNotFound, "not found")
 			}
 
 			getLogger(c).Error("get shortened failed",
-				logger.Field{Key: "shortener", Value: shortener},
+				logger.Field{Key: "shortened", Value: shortened},
 				logger.Field{Key: "error", Value: err})
 
 			return writeError(c, fiber.StatusInternalServerError, "internal error")

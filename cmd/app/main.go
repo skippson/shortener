@@ -84,5 +84,5 @@ func main() {
 		return
 	}
 
-	log.Error("service successfully stopped")
+	log.Info("service successfully stopped")
 }

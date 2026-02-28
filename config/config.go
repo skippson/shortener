@@ -30,7 +30,7 @@ type Generator struct {
 type Config struct {
 	Postgres  Postgres  `env-prefix:"DB_"`
 	Service   Service   `env-prefix:"SERVICE_"`
-	Generator Generator `env-prefix:"GEN_"`
+	Generator Generator `env-prefix:"GENERATOR_"`
 }
 
 func Load() (Config, error) {

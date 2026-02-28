@@ -100,7 +100,7 @@ func TestValidateShortened(t *testing.T) {
 			wantValid: false,
 		},
 		{
-			name:      "space inside",
+			name:      "space",
 			shortened: "abc ABC123",
 			wantValid: false,
 		},

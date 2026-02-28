@@ -7,6 +7,6 @@ import (
 func (h *ApiHandlers) MapApiRoutes(router fiber.Router, mw Middleware) {
 	router.Use(mw.SetRequestID())
 
-	router.Post("/create_shortener", h.CreateShortened())
-	router.Get("get_original/:shortener", h.GetOriginalal())
+	router.Post("/create_shortened", h.CreateShortened())
+	router.Get("get_original/:shortened", h.GetOriginalal())
 }
