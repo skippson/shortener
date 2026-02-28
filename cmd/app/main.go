@@ -62,7 +62,6 @@ func main() {
 		Repository:  db,
 		Generator:   generator,
 		Validator:   validator,
-		Logger:      log,
 		MaxAttempts: cfg.Service.MaxGenerateAttempts,
 		Protection:  cfg.Service.Protection,
 	})

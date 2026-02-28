@@ -128,17 +128,14 @@ func TestCreateShortened(t *testing.T) {
 
 			repo := mocks.NewMockRepository(ctrl)
 			gen := mocks.NewMockGenerator(ctrl)
-			logger := mocks.NewMockLogger(ctrl)
 			validator := mocks.NewMockValidator(ctrl)
 
-			logger.EXPECT().Error(gomock.Any(), gomock.Any()).AnyTimes()
 			tt.setUpMocks(repo, gen, validator)
 
 			uc, _ := usecase.NewUsecase(usecase.UsecaseOptions{
 				Repository:  repo,
 				Generator:   gen,
 				Validator:   validator,
-				Logger:      logger,
 				MaxAttempts: maxAttempts,
 				Protection:  tt.protection,
 			})
@@ -207,10 +204,8 @@ func TestGetShortenedByOriginal(t *testing.T) {
 
 			repo := mocks.NewMockRepository(ctrl)
 			gen := mocks.NewMockGenerator(ctrl)
-			logger := mocks.NewMockLogger(ctrl)
 			validator := mocks.NewMockValidator(ctrl)
 
-			logger.EXPECT().Error(gomock.Any(), gomock.Any()).AnyTimes()
 			if tt.protection {
 				validator.EXPECT().ValidateShortened(tt.shortened).Return(false)
 			} else {
@@ -221,7 +216,6 @@ func TestGetShortenedByOriginal(t *testing.T) {
 				Repository:  repo,
 				Generator:   gen,
 				Validator:   validator,
-				Logger:      logger,
 				MaxAttempts: maxAttempts,
 				Protection:  tt.protection,
 			})

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"shortener/internal/domain"
-	"shortener/pkg/logger"
 )
 
 type Repository interface {
@@ -26,7 +25,6 @@ type UsecaseOptions struct {
 	Repository  Repository
 	Generator   Generator
 	Validator   Validator
-	Logger      logger.Logger
 	MaxAttempts int
 	Protection  bool
 }
@@ -35,7 +33,6 @@ type Usecase struct {
 	repo        Repository
 	gen         Generator
 	validator   Validator
-	log         logger.Logger
 	maxAttempts int
 	protec      bool
 }
@@ -48,7 +45,6 @@ func NewUsecase(options UsecaseOptions) (*Usecase, error) {
 		repo:        options.Repository,
 		gen:         options.Generator,
 		validator:   options.Validator,
-		log:         options.Logger,
 		maxAttempts: options.MaxAttempts,
 		protec:      options.Protection,
 	}, nil
@@ -75,10 +71,6 @@ func (uc *Usecase) CreateShortened(ctx context.Context, url string) (string, err
 
 		shortened, err = uc.gen.Generate()
 		if err != nil {
-			uc.log.Error("cannot generate shortened url",
-				logger.Field{Key: "origin", Value: url},
-				logger.Field{Key: "error", Value: err})
-
 			return "", err
 		}
 
@@ -93,9 +85,6 @@ func (uc *Usecase) CreateShortened(ctx context.Context, url string) (string, err
 
 		return shortened, nil
 	}
-
-	uc.log.Error("max attempts exceeded",
-		logger.Field{Key: "origin", Value: url})
 
 	return "", errors.New("maxAttempts exceeded")
 }
@@ -112,10 +101,6 @@ func (uc *Usecase) GetShortenedByOriginal(ctx context.Context, shortened string)
 		if err == domain.ErrNotFound {
 			return "", err
 		}
-
-		uc.log.Error("cannot get original url",
-			logger.Field{Key: "shortened", Value: shortened},
-			logger.Field{Key: "error", Value: err})
 
 		return "", err
 	}
