@@ -65,7 +65,6 @@
     ```
 
 ## Локальное развертывание
-
 * Для настройки переменных окружения смотрите `.example.env`
     * * `GENERATOR_*` - конфигурация генерации `shortened` (обязательные)
     * * `SERVICE_IN_MEMORY_MODE` - режим хранения в памяти
@@ -98,17 +97,16 @@
     ```
 
 ## Документация
-
 * `config` - Установка конфига
 * `internal/adapters/repository` - Контракт репозитория
 * * `memory` - Релизация и логика хранения в памяти
 * * `postgres` - Взаимодействия с базой данных
 * * * `migrations` - Миграции базы данных
-* `internal/controllers/http_handlers` - Транспортный слой
-* * `middleware` - Обработчик промежуточной логики
+* `internal/controllers/http_handlers` - Транспортный слой(реализация запросов)
+* * `middleware` - Промежуточная логика
 * `internal/domain` - Доменные модели(ошибки)
 * `internal/generator` - Генерация `shortened`
 * `internal/server` - Реализация сервера
 * `internal/usecase` - Бизнес-логика
 * `internal/validator` - Валидация `URL` и `shortened`
-* `pkg/logger` - Логер модель
+* `pkg/logger` - Логгер модель
