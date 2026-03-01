@@ -89,7 +89,7 @@ func (uc *Usecase) CreateShortened(ctx context.Context, url string) (string, err
 	return "", errors.New("maxAttempts exceeded")
 }
 
-func (uc *Usecase) GetShortenedByOriginal(ctx context.Context, shortened string) (string, error) {
+func (uc *Usecase) GetOriginalByShortened(ctx context.Context, shortened string) (string, error) {
 	if uc.protec {
 		if !uc.validator.ValidateShortened(shortened) {
 			return "", domain.ErrInvalidShortened

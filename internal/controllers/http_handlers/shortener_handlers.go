@@ -12,7 +12,7 @@ import (
 
 type Usecase interface {
 	CreateShortened(ctx context.Context, url string) (string, error)
-	GetShortenedByOriginal(ctx context.Context, shortened string) (string, error)
+	GetOriginalByShortened(ctx context.Context, shortened string) (string, error)
 }
 
 type ApiHandlers struct {
@@ -65,13 +65,13 @@ func (h *ApiHandlers) GetOriginalal() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		shortened := c.Params("shortened")
 
-		original, err := h.uc.GetShortenedByOriginal(c.Context(), shortened)
+		original, err := h.uc.GetOriginalByShortened(c.Context(), shortened)
 		if err != nil {
 			if errors.Is(err, domain.ErrInvalidShortened) || errors.Is(err, domain.ErrNotFound) {
 				return writeError(c, fiber.StatusNotFound, "not found")
 			}
 
-			getLogger(c).Error("get shortened failed",
+			getLogger(c).Error("get original failed",
 				logger.Field{Key: "shortened", Value: shortened},
 				logger.Field{Key: "error", Value: err})
 

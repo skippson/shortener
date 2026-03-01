@@ -220,7 +220,7 @@ func TestGetShortenedByOriginal(t *testing.T) {
 				Protection:  tt.protection,
 			})
 
-			gotOriginal, err := uc.GetShortenedByOriginal(ctx, tt.shortened)
+			gotOriginal, err := uc.GetOriginalByShortened(ctx, tt.shortened)
 
 			tt.wantErr(t, err)
 			assert.Equal(t, tt.wantValue, gotOriginal)
